@@ -1,8 +1,11 @@
-// Package vault provides a thin client layer over the HashiCorp Vault API,
-// covering KV v2 operations used by vaultdiff: reading secrets at specific
-// versions, listing available versions for a path, and fetching secret
-// metadata such as creation timestamps and destruction status.
+// Package vault provides clients and helpers for interacting with
+// HashiCorp Vault KV v2 secrets engines.
 //
-// All exported functions accept a context.Context so callers can enforce
-// deadlines and cancellation across concurrent comparisons.
+// It includes:
+//   - Client construction and configuration (client.go)
+//   - Secret reading and version parsing (secrets.go)
+//   - Version listing (versions.go)
+//   - Secret metadata retrieval (metadata.go)
+//   - Environment definition and validation (env.go)
+//   - Environment pair management for cross-environment diffs (env_pair.go)
 package vault
