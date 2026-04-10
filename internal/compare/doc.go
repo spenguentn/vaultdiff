@@ -9,6 +9,6 @@
 //	engine := compare.NewEngine(leftClient, rightClient)
 //	results, err := engine.Run(ctx, leftSource, rightSource)
 //
-The Engine is intentionally stateless so that it can be reused across multiple
+// The Engine is intentionally stateless so that it can be reused across multiple
 // Run calls within a single CLI invocation.
 package compare
