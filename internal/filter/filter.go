@@ -37,6 +37,28 @@ func Apply(results []diff.Result, opts Options) []diff.Result {
 	return filtered
 }
 
+// Count returns the number of results that would be returned by Apply.
+// It is equivalent to len(Apply(results, opts)) but avoids allocating the
+// result slice.
+func Count(results []diff.Result, opts Options) int {
+	allowlist := buildAllowlist(opts.Keys)
+
+	count := 0
+	for _, r := range results {
+		if opts.OnlyChanged && r.Change == diff.Unchanged {
+			continue
+		}
+		if opts.Prefix != "" && !strings.HasPrefix(r.Key, opts.Prefix) {
+			continue
+		}
+		if len(allowlist) > 0 && !allowlist[r.Key] {
+			continue
+		}
+		count++
+	}
+	return count
+}
+
 // buildAllowlist converts a slice of keys into a lookup map.
 func buildAllowlist(keys []string) map[string]bool {
 	if len(keys) == 0 {
