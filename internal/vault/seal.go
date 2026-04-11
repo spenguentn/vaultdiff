@@ -53,6 +53,16 @@ func (s SealInfo) IsSealed() bool {
 	return s.Sealed
 }
 
+// UnsealProgress returns the fraction of unseal keys provided so far as a
+// value between 0.0 and 1.0. Returns 0 if the threshold is not set or the
+// instance is already unsealed.
+func (s SealInfo) UnsealProgress() float64 {
+	if s.Threshold <= 0 || !s.Sealed {
+		return 0
+	}
+	return float64(s.Progress) / float64(s.Threshold)
+}
+
 // ParseSealInfo constructs a SealInfo from a raw Vault API response map.
 func ParseSealInfo(raw map[string]any) (SealInfo, error) {
 	if raw == nil {
