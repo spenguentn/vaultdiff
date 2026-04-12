@@ -53,11 +53,22 @@ func TestEnvironment_Validate_MissingToken(t *testing.T) {
 }
 
 func TestEnvironment_SecretPath(t *testing.T) {
+	tests := []struct {
+		name string
+		path string
+		want string
+	}{
+		{"simple path", "myapp/db", "secret/data/myapp/db"},
+		{"nested path", "myapp/prod/db", "secret/data/myapp/prod/db"},
+		{"single segment", "myapp", "secret/data/myapp"},
+	}
 	env := baseEnv()
-	got := env.SecretPath("myapp/db")
-	want := "secret/data/myapp/db"
-	if got != want {
-		t.Errorf("SecretPath() = %q, want %q", got, want)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := env.SecretPath(tt.path); got != tt.want {
+				t.Errorf("SecretPath(%q) = %q, want %q", tt.path, got, tt.want)
+			}
+		})
 	}
 }
 
