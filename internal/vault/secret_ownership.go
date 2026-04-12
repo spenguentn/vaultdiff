@@ -87,3 +87,14 @@ func (r *OwnershipRegistry) All() []OwnershipRecord {
 	}
 	return out
 }
+
+// FilterByOwner returns all ownership records belonging to the given owner.
+func (r *OwnershipRegistry) FilterByOwner(owner string) []OwnershipRecord {
+	var out []OwnershipRecord
+	for _, rec := range r.records {
+		if rec.Owner == owner {
+			out = append(out, rec)
+		}
+	}
+	return out
+}
