@@ -32,6 +32,12 @@ func (r PromoteRequest) Validate() error {
 	return nil
 }
 
+// IsSelfPromotion returns true when the source and destination refer to the
+// same mount and path, which would result in a no-op write.
+func (r PromoteRequest) IsSelfPromotion() bool {
+	return r.SourceMount == r.DestMount && r.SourcePath == r.DestPath
+}
+
 // PromoteResult holds the outcome of a single promotion operation.
 type PromoteResult struct {
 	Request PromoteRequest
