@@ -36,6 +36,23 @@ func (r SecretReminder) IsDue(now time.Time) bool {
 	return !now.Before(r.RemindAt)
 }
 
+// NextRemindAt returns the next scheduled time after now based on the reminder's
+// frequency. For ReminderFrequencyOnce it returns the original RemindAt unchanged.
+// Returns an error if the frequency is invalid.
+func (r SecretReminder) NextRemindAt(now time.Time) (time.Time, error) {
+	switch r.Frequency {
+	case ReminderFrequencyOnce:
+		return r.RemindAt, nil
+	case ReminderFrequencyWeekly:
+		return r.RemindAt.Add(7 * 24 * time.Hour * time.Duration((int(now.Sub(r.RemindAt)/(7*24*time.Hour))+1))), nil
+	case ReminderFrequencyMonthly:
+		months := int(now.Sub(r.RemindAt).Hours()/(24*30)) + 1
+		return r.RemindAt.AddDate(0, months, 0), nil
+	default:
+		return time.Time{}, fmt.Errorf("reminder: unknown frequency %q", r.Frequency)
+	}
+}
+
 // Validate ensures the reminder has all required fields.
 func (r SecretReminder) Validate() error {
 	if r.Mount == "" {
