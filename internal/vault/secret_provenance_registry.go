@@ -10,7 +10,7 @@ func provenanceKey(mount, path string) string {
 	return fmt.Sprintf("%s/%s", mount, path)
 }
 
-// SecretProvenanceRegistry tracks provenance records for secrets.
+// SecretProvenanceRegistry stores provenance records keyed by mount+path.
 type SecretProvenanceRegistry struct {
 	mu      sync.RWMutex
 	records map[string]SecretProvenance
@@ -37,7 +37,7 @@ func (r *SecretProvenanceRegistry) Set(p SecretProvenance) error {
 	return nil
 }
 
-// Get retrieves a provenance record by mount and path.
+// Get retrieves the provenance record for a given mount+path.
 func (r *SecretProvenanceRegistry) Get(mount, path string) (SecretProvenance, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -45,14 +45,14 @@ func (r *SecretProvenanceRegistry) Get(mount, path string) (SecretProvenance, bo
 	return p, ok
 }
 
-// Remove deletes a provenance record.
+// Remove deletes the provenance record for a given mount+path.
 func (r *SecretProvenanceRegistry) Remove(mount, path string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	delete(r.records, provenanceKey(mount, path))
 }
 
-// All returns a snapshot of all stored records.
+// All returns a snapshot of all stored provenance records.
 func (r *SecretProvenanceRegistry) All() []SecretProvenance {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
