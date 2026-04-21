@@ -2,6 +2,7 @@ package vault
 
 import (
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -28,6 +29,9 @@ type RenewRequest struct {
 func (r RenewRequest) Validate() error {
 	if r.LeaseID == "" {
 		return errors.New("renew: lease ID must not be empty")
+	}
+	if r.Increment < 0 {
+		return fmt.Errorf("renew: increment must not be negative, got %s", r.Increment)
 	}
 	return nil
 }
