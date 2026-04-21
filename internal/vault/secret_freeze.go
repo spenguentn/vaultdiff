@@ -10,9 +10,9 @@ import (
 type FreezeReason string
 
 const (
-	FreezeReasonManual    FreezeReason = "manual"
+	FreezeReasonManual     FreezeReason = "manual"
 	FreezeReasonCompliance FreezeReason = "compliance"
-	FreezeReasonIncident  FreezeReason = "incident"
+	FreezeReasonIncident   FreezeReason = "incident"
 )
 
 // IsValidFreezeReason returns true if the reason is a known freeze reason.
@@ -48,6 +48,11 @@ func (f SecretFreeze) IsExpired() bool {
 	return time.Now().After(*f.ExpiresAt)
 }
 
+// IsActive returns true when the freeze record is valid and has not expired.
+func (f SecretFreeze) IsActive() bool {
+	return f.Validate() == nil && !f.IsExpired()
+}
+
 // Validate checks that the freeze record contains required fields.
 func (f SecretFreeze) Validate() error {
 	if f.Mount == "" {
@@ -61,6 +66,9 @@ func (f SecretFreeze) Validate() error {
 	}
 	if !IsValidFreezeReason(f.Reason) {
 		return fmt.Errorf("freeze: unknown reason %q", f.Reason)
+	}
+	if f.ExpiresAt != nil && !f.ExpiresAt.After(f.FrozenAt) {
+		return errors.New("freeze: expires_at must be after frozen_at")
 	}
 	return nil
 }
