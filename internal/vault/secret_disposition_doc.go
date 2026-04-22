@@ -11,6 +11,15 @@
 // The Due method returns all records whose scheduled time has passed, enabling
 // automated enforcement pipelines to act on overdue secrets.
 //
+// # Disposition Actions
+//
+// The following actions are supported:
+//
+//   - DispositionDelete:   permanently remove the secret from Vault.
+//   - DispositionArchive:  move the secret to a long-term storage path.
+//   - DispositionRotate:   trigger a credential rotation workflow.
+//   - DispositionTransfer: reassign ownership to another team or mount.
+//
 // Example:
 //
 //	reg := vault.NewSecretDispositionRegistry()
