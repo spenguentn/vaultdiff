@@ -1,44 +1,43 @@
 package vault
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
-// ScopeLevel defines the operational scope of a secret.
+// ScopeLevel represents the visibility boundary of a secret.
 type ScopeLevel string
 
 const (
-	ScopeGlobal  ScopeLevel = "global"
-	ScopeRegional ScopeLevel = "regional"
-	ScopeLocal   ScopeLevel = "local"
-	ScopeTeam    ScopeLevel = "team"
+	ScopeLevelLocal  ScopeLevel = "local"
+	ScopeLevelTeam   ScopeLevel = "team"
+	ScopeLevelGlobal ScopeLevel = "global"
 )
 
-var validScopeLevels = map[ScopeLevel]bool{
-	ScopeGlobal:   true,
-	ScopeRegional: true,
-	ScopeLocal:    true,
-	ScopeTeam:     true,
-}
-
-// IsValidScopeLevel returns true if the given scope level is recognised.
+// IsValidScopeLevel reports whether s is a recognised scope level.
 func IsValidScopeLevel(s ScopeLevel) bool {
-	return validScopeLevels[s]
+	switch s {
+	case ScopeLevelLocal, ScopeLevelTeam, ScopeLevelGlobal:
+		return true
+	}
+	return false
 }
 
-// SecretScope associates a scope level with a secret path.
+// SecretScope records the scope assignment for a secret.
 type SecretScope struct {
-	Mount     string     `json:"mount"`
-	Path      string     `json:"path"`
-	Scope     ScopeLevel `json:"scope"`
-	SetBy     string     `json:"set_by"`
-	Namespace string     `json:"namespace,omitempty"`
+	Mount      string     `json:"mount"`
+	Path       string     `json:"path"`
+	Level      ScopeLevel `json:"level"`
+	Owner      string     `json:"owner"`
+	AssignedAt time.Time  `json:"assigned_at"`
 }
 
-// FullPath returns the canonical mount+path string.
+// FullPath returns the canonical mount/path identifier.
 func (s SecretScope) FullPath() string {
-	return fmt.Sprintf("%s/%s", s.Mount, s.Path)
+	return s.Mount + "/" + s.Path
 }
 
-// Validate checks that the SecretScope has all required fields.
+// Validate returns an error if the scope entry is incomplete or invalid.
 func (s SecretScope) Validate() error {
 	if s.Mount == "" {
 		return fmt.Errorf("secret scope: mount is required")
@@ -46,11 +45,11 @@ func (s SecretScope) Validate() error {
 	if s.Path == "" {
 		return fmt.Errorf("secret scope: path is required")
 	}
-	if !IsValidScopeLevel(s.Scope) {
-		return fmt.Errorf("secret scope: invalid scope level %q", s.Scope)
+	if s.Owner == "" {
+		return fmt.Errorf("secret scope: owner is required")
 	}
-	if s.SetBy == "" {
-		return fmt.Errorf("secret scope: set_by is required")
+	if !IsValidScopeLevel(s.Level) {
+		return fmt.Errorf("secret scope: unknown level %q", s.Level)
 	}
 	return nil
 }
